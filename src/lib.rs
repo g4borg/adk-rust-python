@@ -1,6 +1,17 @@
 //! Python bindings for ADK-Rust
 //!
-//! Build AI agents in Python powered by Rust
+//! Build AI agents in Python powered by Rust.
+//!
+//! ## Module Structure
+//!
+//! - `agent` - Agent types (LlmAgent, CustomAgent, workflow agents)
+//! - `model` - LLM providers (Gemini, OpenAI, Anthropic, etc.)
+//! - `tool` - Tool system (FunctionTool, built-in tools)
+//! - `session` - Session and state management
+//! - `runner` - Agent execution
+//! - `types` - Core types (Content, Part, Event)
+//! - `context` - Execution context types
+//! - `error` - Error types
 
 use pyo3::prelude::*;
 

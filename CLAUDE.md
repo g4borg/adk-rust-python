@@ -6,24 +6,47 @@ Python bindings for ADK-Rust, enabling AI agent development in Python with a hig
 
 ```
 adk-rust-python/
-├── src/                    # Rust source (PyO3 bindings)
-│   ├── lib.rs              # Module entry, exports all classes
-│   ├── agent.rs            # LlmAgent, SequentialAgent, ParallelAgent, LoopAgent
-│   ├── model.rs            # GeminiModel, OpenAIModel, AnthropicModel, etc.
-│   ├── tool.rs             # FunctionTool, BasicToolset, built-in tools
-│   ├── runner.rs           # Agent execution runner
-│   ├── session.rs          # InMemorySessionService, State, RunConfig
-│   ├── context.rs          # Context, ToolContext
-│   ├── types.rs            # Content, Part, Event
-│   └── error.rs            # AdkError
-├── python/adk_rust/        # Python package
-│   ├── __init__.py         # Public exports
-│   ├── __init__.pyi        # Type stubs (keep in sync with Rust!)
-│   └── py.typed            # PEP 561 marker
-├── tests/                  # pytest tests
-├── Cargo.toml              # Rust dependencies
-└── pyproject.toml          # Python/maturin config
+├── src/                        # Rust source (PyO3 bindings)
+│   ├── lib.rs                  # Module entry, exports all classes
+│   ├── agent/                  # Agent types
+│   │   ├── mod.rs              # Module exports
+│   │   ├── llm.rs              # LlmAgent, LlmAgentBuilder
+│   │   ├── custom.rs           # CustomAgent (stub)
+│   │   ├── workflow.rs         # SequentialAgent, ParallelAgent, LoopAgent
+│   │   └── CLAUDE.md           # Agent module docs
+│   ├── model/                  # LLM providers
+│   │   ├── mod.rs              # All model implementations
+│   │   └── CLAUDE.md           # Model module docs
+│   ├── tool/                   # Tool system
+│   │   ├── mod.rs              # Module exports
+│   │   ├── function.rs         # FunctionTool, BasicToolset
+│   │   ├── builtin.rs          # ExitLoopTool, LoadArtifactsTool, GoogleSearchTool
+│   │   └── CLAUDE.md           # Tool module docs
+│   ├── session/                # Session management
+│   │   ├── mod.rs              # Session, State, RunConfig
+│   │   └── CLAUDE.md           # Session module docs
+│   ├── runner/                 # Agent execution
+│   │   ├── mod.rs              # Runner, run_agent()
+│   │   └── CLAUDE.md           # Runner module docs
+│   ├── context.rs              # Context, ToolContext
+│   ├── types.rs                # Content, Part, Event
+│   └── error.rs                # AdkError
+├── python/adk_rust/            # Python package
+│   ├── __init__.py             # Public exports
+│   ├── __init__.pyi            # Type stubs (keep in sync with Rust!)
+│   └── py.typed                # PEP 561 marker
+├── tests/                      # pytest tests
+├── Cargo.toml                  # Rust dependencies
+└── pyproject.toml              # Python/maturin config
 ```
+
+## Module Documentation
+
+Each `src/*/CLAUDE.md` file contains:
+- What's exposed to Python
+- What's missing vs adk-rust
+- Implementation patterns
+- How to add new features
 
 ## Build System
 
@@ -115,12 +138,13 @@ Tests use `pytest-asyncio` with `asyncio_mode = "auto"`.
 
 ### Adding a new Python-exposed class
 
-1. Create/modify the Rust struct in `src/` with `#[pyclass]`
+1. Create/modify the Rust struct in appropriate `src/*/` module with `#[pyclass]`
 2. Add `#[pymethods]` for Python-callable methods
-3. Export in `src/lib.rs` via `m.add_class::<ClassName>()?`
-4. Add to `python/adk_rust/__init__.py` exports
-5. Add type stub in `python/adk_rust/__init__.pyi`
-6. Add tests in `tests/`
+3. Export from the module's `mod.rs`
+4. Register in `src/lib.rs` via `m.add_class::<ClassName>()?`
+5. Add to `python/adk_rust/__init__.py` exports
+6. Add type stub in `python/adk_rust/__init__.pyi`
+7. Add tests in `tests/`
 
 ### Debugging build issues
 
@@ -132,6 +156,21 @@ maturin develop
 # Check Rust compilation separately
 cargo check
 ```
+
+## What's Missing vs adk-rust
+
+See the gap analysis in `C:\Users\g4b\.claude\plans\nested-swinging-scroll.md` or individual module CLAUDE.md files.
+
+**High Priority:**
+- CustomAgent (functional implementation)
+- Callbacks (before/after model/tool/agent)
+- Guardrails (content filtering, PII redaction)
+
+**Medium Priority:**
+- Artifact system (binary storage)
+- Memory system (semantic search)
+- AgentTool (agents as tools)
+- ConditionalAgent, MCP integration
 
 ## Local Development Notes
 
