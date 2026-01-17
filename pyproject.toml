@@ -1,0 +1,54 @@
+[build-system]
+requires = ["maturin>=1.4,<2.0"]
+build-backend = "maturin"
+
+[project]
+name = "adk-rust-python"
+version = "0.1.0"
+description = "Python bindings for ADK-Rust - Build AI agents in Python powered by Rust"
+readme = "README.md"
+requires-python = ">=3.9"
+license = { file = "LICENSE" }
+keywords = ["adk", "agent", "ai", "gemini", "llm", "rust"]
+classifiers = [
+  "Development Status :: 3 - Alpha",
+  "Intended Audience :: Developers",
+  "License :: OSI Approved :: Apache Software License",
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3.9",
+  "Programming Language :: Python :: 3.10",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+  "Programming Language :: Rust",
+  "Topic :: Scientific/Engineering :: Artificial Intelligence",
+]
+
+[project.urls]
+Homepage = "https://github.com/g4borg/adk-rust-python"
+Repository = "https://github.com/g4borg/adk-rust-python"
+
+[project.optional-dependencies]
+dev = [
+  "pytest>=7.0",
+  "pytest-asyncio>=0.21",
+  "mypy>=1.0",
+  "ruff>=0.1",
+]
+
+[tool.maturin]
+features = ["pyo3/extension-module"]
+include = ["python/adk_rust/*.pyi", "python/adk_rust/py.typed"]
+module-name = "adk_rust._adk_rust"
+python-source = "python"
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
+testpaths = ["tests"]
+
+[tool.mypy]
+python_version = "3.9"
+strict = true
+
+[tool.ruff]
+target-version = "py39"
+line-length = 100
