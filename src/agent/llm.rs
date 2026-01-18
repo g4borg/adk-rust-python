@@ -3,6 +3,10 @@
 use pyo3::prelude::*;
 use std::sync::Arc;
 
+use crate::callbacks::{
+    create_after_agent_callback, create_after_model_callback, create_after_tool_callback,
+    create_before_agent_callback, create_before_model_callback, create_before_tool_callback,
+};
 use crate::model::extract_llm;
 use crate::tool::PyFunctionTool;
 
@@ -44,6 +48,13 @@ pub struct PyLlmAgentBuilder {
     tools: Vec<Arc<dyn adk_core::Tool>>,
     sub_agents: Vec<Arc<dyn adk_core::Agent>>,
     output_key: Option<String>,
+    // Store Python callbacks - we'll create Rust callbacks in build()
+    before_agent_callbacks: Vec<Py<PyAny>>,
+    after_agent_callbacks: Vec<Py<PyAny>>,
+    before_model_callbacks: Vec<Py<PyAny>>,
+    after_model_callbacks: Vec<Py<PyAny>>,
+    before_tool_callbacks: Vec<Py<PyAny>>,
+    after_tool_callbacks: Vec<Py<PyAny>>,
 }
 
 #[pymethods]
@@ -58,6 +69,12 @@ impl PyLlmAgentBuilder {
             tools: Vec::new(),
             sub_agents: Vec::new(),
             output_key: None,
+            before_agent_callbacks: Vec::new(),
+            after_agent_callbacks: Vec::new(),
+            before_model_callbacks: Vec::new(),
+            after_model_callbacks: Vec::new(),
+            before_tool_callbacks: Vec::new(),
+            after_tool_callbacks: Vec::new(),
         }
     }
 
@@ -101,6 +118,81 @@ impl PyLlmAgentBuilder {
         slf
     }
 
+    /// Add a callback that runs before the agent executes.
+    ///
+    /// The callback receives a CallbackContext and can return:
+    /// - None to continue normally
+    /// - A Content or string to skip execution and return that response
+    fn before_agent_callback(
+        mut slf: PyRefMut<'_, Self>,
+        callback: Py<PyAny>,
+    ) -> PyRefMut<'_, Self> {
+        slf.before_agent_callbacks.push(callback);
+        slf
+    }
+
+    /// Add a callback that runs after the agent executes.
+    ///
+    /// The callback receives a CallbackContext and can return:
+    /// - None to continue normally
+    /// - A Content or string to modify the response
+    fn after_agent_callback(
+        mut slf: PyRefMut<'_, Self>,
+        callback: Py<PyAny>,
+    ) -> PyRefMut<'_, Self> {
+        slf.after_agent_callbacks.push(callback);
+        slf
+    }
+
+    /// Add a callback that runs before each model call.
+    ///
+    /// The callback receives (CallbackContext, LlmRequest) and can return:
+    /// - None or BeforeModelResult.cont() to continue with the request
+    /// - BeforeModelResult.skip(text) to skip the model call and use that response
+    fn before_model_callback(
+        mut slf: PyRefMut<'_, Self>,
+        callback: Py<PyAny>,
+    ) -> PyRefMut<'_, Self> {
+        slf.before_model_callbacks.push(callback);
+        slf
+    }
+
+    /// Add a callback that runs after each model call.
+    ///
+    /// The callback receives (CallbackContext, LlmResponse) and can return:
+    /// - None to keep the original response
+    /// - A modified LlmResponse to replace it
+    fn after_model_callback(
+        mut slf: PyRefMut<'_, Self>,
+        callback: Py<PyAny>,
+    ) -> PyRefMut<'_, Self> {
+        slf.after_model_callbacks.push(callback);
+        slf
+    }
+
+    /// Add a callback that runs before each tool call.
+    ///
+    /// The callback receives a CallbackContext and can return:
+    /// - None to continue normally
+    /// - A Content or string to skip the tool and return that response
+    fn before_tool_callback(
+        mut slf: PyRefMut<'_, Self>,
+        callback: Py<PyAny>,
+    ) -> PyRefMut<'_, Self> {
+        slf.before_tool_callbacks.push(callback);
+        slf
+    }
+
+    /// Add a callback that runs after each tool call.
+    ///
+    /// The callback receives a CallbackContext and can return:
+    /// - None to continue normally
+    /// - A Content or string to modify the tool response
+    fn after_tool_callback(mut slf: PyRefMut<'_, Self>, callback: Py<PyAny>) -> PyRefMut<'_, Self> {
+        slf.after_tool_callbacks.push(callback);
+        slf
+    }
+
     fn build(&self) -> PyResult<PyLlmAgent> {
         let model = self
             .model
@@ -124,6 +216,32 @@ impl PyLlmAgentBuilder {
         }
         for agent in &self.sub_agents {
             builder = builder.sub_agent(agent.clone());
+        }
+
+        // Add callbacks - convert Python callbacks to Rust callbacks
+        for cb in &self.before_agent_callbacks {
+            let cb_clone = Python::with_gil(|py| cb.clone_ref(py));
+            builder = builder.before_callback(create_before_agent_callback(cb_clone));
+        }
+        for cb in &self.after_agent_callbacks {
+            let cb_clone = Python::with_gil(|py| cb.clone_ref(py));
+            builder = builder.after_callback(create_after_agent_callback(cb_clone));
+        }
+        for cb in &self.before_model_callbacks {
+            let cb_clone = Python::with_gil(|py| cb.clone_ref(py));
+            builder = builder.before_model_callback(create_before_model_callback(cb_clone));
+        }
+        for cb in &self.after_model_callbacks {
+            let cb_clone = Python::with_gil(|py| cb.clone_ref(py));
+            builder = builder.after_model_callback(create_after_model_callback(cb_clone));
+        }
+        for cb in &self.before_tool_callbacks {
+            let cb_clone = Python::with_gil(|py| cb.clone_ref(py));
+            builder = builder.before_tool_callback(create_before_tool_callback(cb_clone));
+        }
+        for cb in &self.after_tool_callbacks {
+            let cb_clone = Python::with_gil(|py| cb.clone_ref(py));
+            builder = builder.after_tool_callback(create_after_tool_callback(cb_clone));
         }
 
         let agent = builder

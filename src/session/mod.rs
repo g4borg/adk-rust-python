@@ -85,6 +85,13 @@ impl PyState {
 }
 
 impl PyState {
+    /// Create an empty state
+    pub fn empty() -> Self {
+        Self {
+            data: HashMap::new(),
+        }
+    }
+
     /// Create from adk_core::State
     pub fn from_session_state(state: &dyn adk_core::State) -> Self {
         Self { data: state.all() }

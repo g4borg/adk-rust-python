@@ -16,8 +16,12 @@
 use pyo3::prelude::*;
 
 pub mod agent;
+pub mod artifact;
+pub mod callbacks;
 pub mod context;
 pub mod error;
+pub mod guardrail;
+pub mod memory;
 pub mod model;
 pub mod runner;
 pub mod session;
@@ -56,6 +60,9 @@ fn _adk_rust(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_class::<PySequentialAgent>()?;
     m.add_class::<PyParallelAgent>()?;
     m.add_class::<PyLoopAgent>()?;
+    m.add_class::<agent::PyConditionalAgent>()?;
+    m.add_class::<agent::PyLlmConditionalAgent>()?;
+    m.add_class::<agent::PyLlmConditionalAgentBuilder>()?;
 
     // Tools
     m.add_class::<PyFunctionTool>()?;
@@ -82,9 +89,32 @@ fn _adk_rust(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_class::<context::PyContext>()?;
     m.add_class::<context::PyToolContext>()?;
     m.add_class::<context::PyInvocationContext>()?;
+    m.add_class::<context::PyCallbackContext>()?;
+
+    // Callbacks
+    m.add_class::<callbacks::PyLlmRequest>()?;
+    m.add_class::<callbacks::PyLlmResponse>()?;
+    m.add_class::<callbacks::PyBeforeModelResult>()?;
 
     // Error
     m.add_class::<error::PyAdkError>()?;
+
+    // Guardrails
+    m.add_class::<guardrail::PySeverity>()?;
+    m.add_class::<guardrail::PyPiiType>()?;
+    m.add_class::<guardrail::PyContentFilter>()?;
+    m.add_class::<guardrail::PyPiiRedactor>()?;
+    m.add_class::<guardrail::PyGuardrailSet>()?;
+    m.add_class::<guardrail::PyGuardrailResult>()?;
+    m.add_class::<guardrail::PyGuardrailFailure>()?;
+    m.add_function(wrap_pyfunction!(guardrail::run_guardrails, m)?)?;
+
+    // Memory
+    m.add_class::<memory::PyMemoryEntry>()?;
+    m.add_class::<memory::PyInMemoryMemoryService>()?;
+
+    // Artifact
+    m.add_class::<artifact::PyInMemoryArtifactService>()?;
 
     Ok(())
 }

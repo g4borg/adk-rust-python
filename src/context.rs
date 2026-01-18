@@ -191,3 +191,78 @@ impl PyInvocationContext {
         }
     }
 }
+
+/// Callback context passed to before/after callbacks
+///
+/// Provides access to session state, user content, and agent info.
+#[pyclass(name = "CallbackContext")]
+#[derive(Clone)]
+pub struct PyCallbackContext {
+    pub(crate) base: PyContext,
+    pub(crate) user_content: Option<PyContent>,
+    pub(crate) state: PyState,
+}
+
+#[pymethods]
+impl PyCallbackContext {
+    #[getter]
+    fn invocation_id(&self) -> String {
+        self.base.invocation_id.clone()
+    }
+
+    #[getter]
+    fn agent_name(&self) -> String {
+        self.base.agent_name.clone()
+    }
+
+    #[getter]
+    fn user_id(&self) -> String {
+        self.base.user_id.clone()
+    }
+
+    #[getter]
+    fn app_name(&self) -> String {
+        self.base.app_name.clone()
+    }
+
+    #[getter]
+    fn session_id(&self) -> String {
+        self.base.session_id.clone()
+    }
+
+    /// The user's message content that triggered this invocation
+    #[getter]
+    fn user_content(&self) -> Option<PyContent> {
+        self.user_content.clone()
+    }
+
+    /// Session state - can read values set by previous turns
+    #[getter]
+    fn state(&self) -> PyState {
+        self.state.clone()
+    }
+
+    fn __repr__(&self) -> String {
+        format!(
+            "CallbackContext(agent='{}', user='{}', session='{}')",
+            self.base.agent_name, self.base.user_id, self.base.session_id
+        )
+    }
+}
+
+impl PyCallbackContext {
+    /// Create from a CallbackContext trait object
+    pub fn from_callback_context(ctx: &dyn adk_core::CallbackContext) -> Self {
+        // Get user content from user_content() method (from ReadonlyContext)
+        let user_content = Some(PyContent::from(ctx.user_content().clone()));
+
+        // CallbackContext doesn't have session access, create empty state
+        let state = PyState::empty();
+
+        Self {
+            base: PyContext::from_readonly(ctx),
+            user_content,
+            state,
+        }
+    }
+}

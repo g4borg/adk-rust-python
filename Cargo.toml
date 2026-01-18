@@ -14,6 +14,7 @@ name = "adk_rust"
 adk-agent = { git = "https://github.com/zavora-ai/adk-rust", branch = "main" }
 adk-artifact = { git = "https://github.com/zavora-ai/adk-rust", branch = "main" }
 adk-core = { git = "https://github.com/zavora-ai/adk-rust", branch = "main" }
+adk-guardrail = { git = "https://github.com/zavora-ai/adk-rust", branch = "main" }
 adk-memory = { git = "https://github.com/zavora-ai/adk-rust", branch = "main" }
 adk-model = { git = "https://github.com/zavora-ai/adk-rust", branch = "main" }
 adk-runner = { git = "https://github.com/zavora-ai/adk-rust", branch = "main" }
@@ -22,6 +23,7 @@ adk-rust = { git = "https://github.com/zavora-ai/adk-rust", branch = "main", fea
 ] }
 adk-session = { git = "https://github.com/zavora-ai/adk-rust", branch = "main" }
 adk-tool = { git = "https://github.com/zavora-ai/adk-rust", branch = "main" }
+async-stream = "0.3"
 async-trait = "0.1"
 chrono = "0.4"
 futures = "0.3"

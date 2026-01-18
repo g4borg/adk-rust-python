@@ -91,6 +91,43 @@ class LlmAgentBuilder:
     def tool(self, tool: FunctionTool) -> LlmAgentBuilder: ...
     def sub_agent(self, agent: LlmAgent) -> LlmAgentBuilder: ...
     def output_key(self, key: str) -> LlmAgentBuilder: ...
+    def before_agent_callback(
+        self,
+        callback: Callable[
+            [CallbackContext], Awaitable[Optional[Content | str]] | Optional[Content | str]
+        ],
+    ) -> LlmAgentBuilder: ...
+    def after_agent_callback(
+        self,
+        callback: Callable[
+            [CallbackContext], Awaitable[Optional[Content | str]] | Optional[Content | str]
+        ],
+    ) -> LlmAgentBuilder: ...
+    def before_model_callback(
+        self,
+        callback: Callable[
+            [CallbackContext, LlmRequest],
+            Awaitable[Optional[BeforeModelResult]] | Optional[BeforeModelResult],
+        ],
+    ) -> LlmAgentBuilder: ...
+    def after_model_callback(
+        self,
+        callback: Callable[
+            [CallbackContext, LlmResponse], Awaitable[Optional[LlmResponse]] | Optional[LlmResponse]
+        ],
+    ) -> LlmAgentBuilder: ...
+    def before_tool_callback(
+        self,
+        callback: Callable[
+            [CallbackContext], Awaitable[Optional[Content | str]] | Optional[Content | str]
+        ],
+    ) -> LlmAgentBuilder: ...
+    def after_tool_callback(
+        self,
+        callback: Callable[
+            [CallbackContext], Awaitable[Optional[Content | str]] | Optional[Content | str]
+        ],
+    ) -> LlmAgentBuilder: ...
     def build(self) -> LlmAgent: ...
 
 class LlmAgent:
@@ -132,6 +169,61 @@ class LoopAgent:
     def __init__(self, name: str, agents: List[LlmAgent], max_iterations: int = 10) -> None: ...
     @property
     def name(self) -> str: ...
+
+# Type alias for agent types
+Agent = LlmAgent | CustomAgent | SequentialAgent | ParallelAgent | LoopAgent
+
+class ConditionalAgent:
+    """Rule-based conditional routing agent.
+
+    Routes execution to one of two agents based on a Python condition function.
+    For LLM-based intelligent routing, use LlmConditionalAgent instead.
+    """
+
+    def __init__(
+        self,
+        name: str,
+        condition: Callable[[InvocationContext], bool],
+        if_agent: Agent,
+        else_agent: Optional[Agent] = None,
+        description: Optional[str] = None,
+    ) -> None: ...
+    @property
+    def name(self) -> str: ...
+    @property
+    def description(self) -> str: ...
+
+class LlmConditionalAgentBuilder:
+    """Builder for LlmConditionalAgent."""
+
+    def description(self, desc: str) -> LlmConditionalAgentBuilder: ...
+    def instruction(self, instruction: str) -> LlmConditionalAgentBuilder: ...
+    def route(self, label: str, agent: Agent) -> LlmConditionalAgentBuilder: ...
+    def default_route(self, agent: Agent) -> LlmConditionalAgentBuilder: ...
+    def build(self) -> LlmConditionalAgent: ...
+
+class LlmConditionalAgent:
+    """LLM-based intelligent routing agent.
+
+    Uses an LLM to classify user input and route to the appropriate sub-agent
+    based on the classification result. Supports multi-way routing.
+    """
+
+    @staticmethod
+    def builder(
+        name: str,
+        model: GeminiModel
+        | OpenAIModel
+        | AnthropicModel
+        | DeepSeekModel
+        | GroqModel
+        | OllamaModel
+        | MockLlm,
+    ) -> LlmConditionalAgentBuilder: ...
+    @property
+    def name(self) -> str: ...
+    @property
+    def description(self) -> str: ...
 
 # Tools
 class FunctionTool:
@@ -298,9 +390,226 @@ class InvocationContext:
     @property
     def state(self) -> State: ...
 
+class CallbackContext:
+    """Context passed to callback functions."""
+
+    @property
+    def invocation_id(self) -> str: ...
+    @property
+    def agent_name(self) -> str: ...
+    @property
+    def user_id(self) -> str: ...
+    @property
+    def app_name(self) -> str: ...
+    @property
+    def session_id(self) -> str: ...
+    @property
+    def user_content(self) -> Optional[Content]: ...
+    @property
+    def state(self) -> State: ...
+
+# Callbacks
+class LlmRequest:
+    """Request passed to LLM model."""
+
+    model: str
+    contents: List[Content]
+
+class LlmResponse:
+    """Response from LLM model."""
+
+    partial: bool
+    turn_complete: bool
+
+    def __init__(
+        self,
+        content: Optional[Content] = None,
+        partial: bool = False,
+        turn_complete: bool = True,
+    ) -> None: ...
+    @property
+    def content(self) -> Optional[Content]: ...
+    def get_text(self) -> Optional[str]: ...
+
+class BeforeModelResult:
+    """Result from before_model callback to control model execution."""
+
+    @staticmethod
+    def cont() -> BeforeModelResult:
+        """Continue with the model call."""
+        ...
+    @staticmethod
+    def skip(response_text: str) -> BeforeModelResult:
+        """Skip the model call and return the given response."""
+        ...
+
 # Error
 class AdkError(Exception):
     message: str
     def __init__(self, message: str) -> None: ...
+
+# Guardrails
+class Severity:
+    """Severity level for guardrail failures."""
+
+    Low: Severity
+    Medium: Severity
+    High: Severity
+    Critical: Severity
+
+class PiiType:
+    """Types of PII to detect and redact."""
+
+    Email: PiiType
+    Phone: PiiType
+    Ssn: PiiType
+    CreditCard: PiiType
+    IpAddress: PiiType
+
+class ContentFilter:
+    """Content filter guardrail for blocking harmful or off-topic content."""
+
+    @staticmethod
+    def harmful_content() -> ContentFilter:
+        """Create a filter that blocks common harmful content patterns."""
+        ...
+    @staticmethod
+    def on_topic(topic: str, keywords: List[str]) -> ContentFilter:
+        """Create a filter that ensures content is on-topic."""
+        ...
+    @staticmethod
+    def max_length(max: int) -> ContentFilter:
+        """Create a filter with maximum length."""
+        ...
+    @staticmethod
+    def blocked_keywords(keywords: List[str]) -> ContentFilter:
+        """Create a filter with blocked keywords."""
+        ...
+    @staticmethod
+    def custom(
+        name: str,
+        blocked_keywords: Optional[List[str]] = None,
+        required_topics: Optional[List[str]] = None,
+        max_length: Optional[int] = None,
+        min_length: Optional[int] = None,
+        severity: Optional[Severity] = None,
+    ) -> ContentFilter:
+        """Create a custom content filter with full configuration."""
+        ...
+
+class PiiRedactor:
+    """PII detection and redaction guardrail."""
+
+    def __init__(self) -> None:
+        """Create a new PII redactor with all PII types enabled (Email, Phone, SSN, CreditCard)."""
+        ...
+    @staticmethod
+    def with_types(types: List[PiiType]) -> PiiRedactor:
+        """Create a PII redactor with specific types."""
+        ...
+    def redact(self, text: str) -> tuple[str, List[str]]:
+        """Redact PII from text, returns (redacted_text, found_types)."""
+        ...
+
+class GuardrailSet:
+    """A set of guardrails to run together."""
+
+    def __init__(self) -> None: ...
+    def with_content_filter(self, filter: ContentFilter) -> GuardrailSet:
+        """Add a content filter to this set."""
+        ...
+    def with_pii_redactor(self, redactor: PiiRedactor) -> GuardrailSet:
+        """Add a PII redactor to this set."""
+        ...
+    def is_empty(self) -> bool:
+        """Check if this set is empty."""
+        ...
+
+class GuardrailFailure:
+    """A single guardrail failure."""
+
+    name: str
+    reason: str
+    severity: Severity
+
+class GuardrailResult:
+    """Result of running guardrails."""
+
+    passed: bool
+    transformed_content: Optional[Content]
+    failures: List[GuardrailFailure]
+
+async def run_guardrails(guardrails: GuardrailSet, content: Content) -> GuardrailResult:
+    """Run guardrails on content."""
+    ...
+
+# Memory
+class MemoryEntry:
+    """A memory entry with content and metadata."""
+
+    content: Content
+    author: str
+    timestamp: str
+
+    def __init__(self, content: Content, author: str, timestamp: Optional[str] = None) -> None: ...
+
+class InMemoryMemoryService:
+    """In-memory memory service for semantic search."""
+
+    def __init__(self) -> None: ...
+    async def add_session(
+        self, app_name: str, user_id: str, session_id: str, entries: List[MemoryEntry]
+    ) -> None:
+        """Add session memories."""
+        ...
+    async def search(self, app_name: str, user_id: str, query: str) -> List[MemoryEntry]:
+        """Search for memories matching a query."""
+        ...
+
+# Artifact
+class InMemoryArtifactService:
+    """In-memory artifact service for binary data storage."""
+
+    def __init__(self) -> None: ...
+    async def save(
+        self,
+        app_name: str,
+        user_id: str,
+        session_id: str,
+        file_name: str,
+        data: bytes | str,
+        mime_type: Optional[str] = None,
+        version: Optional[int] = None,
+    ) -> int:
+        """Save an artifact (bytes or text). Returns version number."""
+        ...
+    async def load(
+        self,
+        app_name: str,
+        user_id: str,
+        session_id: str,
+        file_name: str,
+        version: Optional[int] = None,
+    ) -> Part:
+        """Load an artifact. Returns Part containing the data."""
+        ...
+    async def delete(
+        self,
+        app_name: str,
+        user_id: str,
+        session_id: str,
+        file_name: str,
+        version: Optional[int] = None,
+    ) -> None:
+        """Delete an artifact."""
+        ...
+    async def list(self, app_name: str, user_id: str, session_id: str) -> List[str]:
+        """List all artifact names in a session."""
+        ...
+    async def versions(
+        self, app_name: str, user_id: str, session_id: str, file_name: str
+    ) -> List[int]:
+        """Get all versions of an artifact."""
+        ...
 
 __version__: str
