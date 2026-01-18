@@ -11,24 +11,26 @@ adk-rust-python/
 │   ├── agent/                  # Agent types
 │   │   ├── mod.rs              # Module exports
 │   │   ├── llm.rs              # LlmAgent, LlmAgentBuilder
-│   │   ├── custom.rs           # CustomAgent (stub)
-│   │   ├── workflow.rs         # SequentialAgent, ParallelAgent, LoopAgent
-│   │   └── CLAUDE.md           # Agent module docs
+│   │   ├── custom.rs           # CustomAgent, CustomAgentBuilder
+│   │   ├── conditional.rs      # ConditionalAgent, LlmConditionalAgent
+│   │   └── workflow.rs         # SequentialAgent, ParallelAgent, LoopAgent
 │   ├── model/                  # LLM providers
-│   │   ├── mod.rs              # All model implementations
-│   │   └── CLAUDE.md           # Model module docs
+│   │   └── mod.rs              # All model implementations
 │   ├── tool/                   # Tool system
 │   │   ├── mod.rs              # Module exports
 │   │   ├── function.rs         # FunctionTool, BasicToolset
-│   │   ├── builtin.rs          # ExitLoopTool, LoadArtifactsTool, GoogleSearchTool
-│   │   └── CLAUDE.md           # Tool module docs
+│   │   ├── agent_tool.rs       # AgentTool (agents as tools)
+│   │   └── builtin.rs          # ExitLoopTool, LoadArtifactsTool, GoogleSearchTool
 │   ├── session/                # Session management
-│   │   ├── mod.rs              # Session, State, RunConfig
-│   │   └── CLAUDE.md           # Session module docs
+│   │   └── mod.rs              # Session, State, RunConfig, GenerateContentConfig
 │   ├── runner/                 # Agent execution
-│   │   ├── mod.rs              # Runner, run_agent()
-│   │   └── CLAUDE.md           # Runner module docs
-│   ├── context.rs              # Context, ToolContext
+│   │   └── mod.rs              # Runner, run_agent()
+│   ├── guardrail/              # Content safety
+│   │   └── mod.rs              # ContentFilter, PiiRedactor, GuardrailSet
+│   ├── callbacks.rs            # Callback types (LlmRequest, LlmResponse, etc.)
+│   ├── context.rs              # Context, ToolContext, InvocationContext, CallbackContext
+│   ├── memory.rs               # InMemoryMemoryService, MemoryEntry
+│   ├── artifact.rs             # InMemoryArtifactService
 │   ├── types.rs                # Content, Part, Event
 │   └── error.rs                # AdkError
 ├── python/adk_rust/            # Python package
@@ -36,17 +38,10 @@ adk-rust-python/
 │   ├── __init__.pyi            # Type stubs (keep in sync with Rust!)
 │   └── py.typed                # PEP 561 marker
 ├── tests/                      # pytest tests
+├── docs/plans/                 # Implementation plans
 ├── Cargo.toml                  # Rust dependencies
 └── pyproject.toml              # Python/maturin config
 ```
-
-## Module Documentation
-
-Each `src/*/CLAUDE.md` file contains:
-- What's exposed to Python
-- What's missing vs adk-rust
-- Implementation patterns
-- How to add new features
 
 ## Build System
 
@@ -80,6 +75,32 @@ Uses `uv` for venv management. Dev dependencies are in `[project.optional-depend
 ```bash
 uv pip install -e ".[dev]"
 ```
+
+## What's Exposed to Python
+
+**Types:** `Content`, `Part`, `Event`
+
+**Models:** `GeminiModel`, `OpenAIModel`, `AnthropicModel`, `DeepSeekModel`, `GroqModel`, `OllamaModel`, `MockLlm`
+
+**Agents:** `LlmAgent`, `LlmAgentBuilder`, `CustomAgent`, `CustomAgentBuilder`, `SequentialAgent`, `ParallelAgent`, `LoopAgent`, `ConditionalAgent`, `LlmConditionalAgent`, `LlmConditionalAgentBuilder`
+
+**Tools:** `FunctionTool`, `BasicToolset`, `AgentTool`, `ExitLoopTool`, `GoogleSearchTool`, `LoadArtifactsTool`
+
+**Session:** `InMemorySessionService`, `State`, `RunConfig`, `StreamingMode`, `CreateSessionRequest`, `GetSessionRequest`, `GenerateContentConfig`
+
+**Runner:** `Runner`, `run_agent()`
+
+**Context:** `Context`, `ToolContext`, `InvocationContext`, `CallbackContext`
+
+**Callbacks:** `LlmRequest`, `LlmResponse`, `BeforeModelResult`
+
+**Guardrails:** `Severity`, `PiiType`, `ContentFilter`, `PiiRedactor`, `GuardrailSet`, `GuardrailResult`, `GuardrailFailure`, `run_guardrails()`
+
+**Memory:** `MemoryEntry`, `InMemoryMemoryService`
+
+**Artifacts:** `InMemoryArtifactService`
+
+**Error:** `AdkError`
 
 ## Key Patterns
 
@@ -121,7 +142,7 @@ fn run<'py>(&self, py: Python<'py>, ...) -> PyResult<Bound<'py, PyAny>> {
 ## Dependencies
 
 Rust ADK modules are sourced from git:
-- `adk-rust`, `adk-core`, `adk-agent`, `adk-model`, `adk-tool`, `adk-runner`, `adk-session`
+- `adk-rust`, `adk-core`, `adk-agent`, `adk-model`, `adk-tool`, `adk-runner`, `adk-session`, `adk-guardrail`, `adk-memory`, `adk-artifact`
 - All from: `https://github.com/zavora-ai/adk-rust`
 
 ## Testing
@@ -157,20 +178,18 @@ maturin develop
 cargo check
 ```
 
-## What's Missing vs adk-rust
+## Future Work
 
-See the gap analysis in `C:\Users\g4b\.claude\plans\nested-swinging-scroll.md` or individual module CLAUDE.md files.
+See `docs/plans/python-bindings-plan.md` for the full implementation plan.
 
-**High Priority:**
-- CustomAgent (functional implementation)
-- Callbacks (before/after model/tool/agent)
-- Guardrails (content filtering, PII redaction)
+**Remaining (Phase 4):**
+- McpToolset (MCP integration)
+- Event Streaming (async iteration)
 
-**Medium Priority:**
-- Artifact system (binary storage)
-- Memory system (semantic search)
-- AgentTool (agents as tools)
-- ConditionalAgent, MCP integration
+**Future (Phase 5+):**
+- Browser integration
+- Graph workflows
+- Schema serialization
 
 ## Local Development Notes
 

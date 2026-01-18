@@ -6,17 +6,19 @@ Python bindings for the ADK tool system.
 
 - `mod.rs` - Module exports
 - `function.rs` - `FunctionTool`, `BasicToolset`
+- `agent_tool.rs` - `AgentTool` (agents as tools)
 - `builtin.rs` - `ExitLoopTool`, `LoadArtifactsTool`, `GoogleSearchTool`
 
 ## Exposed Classes
 
 | Python Class | Purpose | Status |
 |--------------|---------|--------|
-| `FunctionTool` | Wrap Python functions | ✅ Complete |
-| `BasicToolset` | Group tools together | ✅ Complete |
-| `ExitLoopTool` | Exit loop agents | ✅ Complete |
-| `LoadArtifactsTool` | Load artifacts | ✅ Complete |
-| `GoogleSearchTool` | Google search | ✅ Complete |
+| `FunctionTool` | Wrap Python functions | Complete |
+| `BasicToolset` | Group tools together | Complete |
+| `AgentTool` | Use agents as tools | Complete |
+| `ExitLoopTool` | Exit loop agents | Complete |
+| `LoadArtifactsTool` | Load artifacts | Complete |
+| `GoogleSearchTool` | Google search | Complete |
 
 ## FunctionTool Implementation
 
@@ -53,18 +55,28 @@ This is safe because:
 - `Py<PyAny>` is thread-safe (reference counted)
 - All Python access happens inside `Python::with_gil`
 
-## Missing from adk-rust
+## AgentTool
 
-### AgentTool (HIGH PRIORITY)
-Use agents as tools for composition:
-```rust
-AgentTool::new(agent, config)
+Use any agent as a tool for composition:
+
+```python
+helper = LlmAgent.builder("helper").model(model).build()
+helper_tool = AgentTool(
+    helper,
+    skip_summarization=False,
+    forward_artifacts=True,
+    timeout_secs=60
+)
+main = LlmAgent.builder("main").model(model).tool(helper_tool).build()
 ```
 
-### McpToolset (MEDIUM PRIORITY)
+## Missing from adk-rust
+
+### McpToolset (TODO - Phase 4)
 Connect to MCP servers for external tools:
-```rust
-McpToolset::connect("npx", ["-y", "@modelcontextprotocol/server-filesystem"])
+```python
+mcp = await McpToolset.from_command("npx", ["-y", "@modelcontextprotocol/server-filesystem", "/tmp"])
+agent = LlmAgent.builder("agent").model(model).toolset(mcp).build()
 ```
 
 ### Long-Running Tools

@@ -10,8 +10,8 @@ Python bindings for agent execution.
 
 | Python Name | Purpose | Status |
 |-------------|---------|--------|
-| `Runner` | Full-featured agent executor | ✅ Complete |
-| `run_agent()` | Simple one-shot execution | ✅ Complete |
+| `Runner` | Full-featured agent executor | Complete |
+| `run_agent()` | Simple one-shot execution | Complete |
 
 ## Runner Class
 
@@ -61,34 +61,18 @@ Ok(events)
 
 ## Missing from adk-rust
 
-### Artifact & Memory Services
-
-Current runner config always sets these to `None`:
-
-```rust
-let config = adk_runner::RunnerConfig {
-    // ...
-    artifact_service: None,  // TODO
-    memory_service: None,    // TODO
-};
-```
-
-### Callbacks
-
-The Rust `Runner` supports callbacks but they're not exposed:
-
-```rust
-// In Rust:
-runner.with_before_model_callback(|ctx, req| { ... })
-runner.with_after_model_callback(|ctx, resp| { ... })
-```
-
-### True Streaming
+### True Streaming (TODO - Phase 4)
 
 Currently we collect all events. For true streaming we'd need:
 - Python async generator
 - Or callback-based approach
 - Or return an async iterator
+
+```python
+# Desired API:
+async for event in runner.run_stream(user_id, session_id, message):
+    print(event.get_text())
+```
 
 ### Agent Type Flexibility
 

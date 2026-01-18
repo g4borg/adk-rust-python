@@ -10,13 +10,13 @@ Python bindings for LLM providers.
 
 | Python Class | Provider | Status |
 |--------------|----------|--------|
-| `GeminiModel` | Google Gemini | ✅ Complete |
-| `OpenAIModel` | OpenAI GPT | ✅ Complete |
-| `AnthropicModel` | Anthropic Claude | ✅ Complete |
-| `DeepSeekModel` | DeepSeek | ✅ Complete |
-| `GroqModel` | Groq | ✅ Complete |
-| `OllamaModel` | Ollama (local) | ✅ Complete |
-| `MockLlm` | Testing | ✅ Complete |
+| `GeminiModel` | Google Gemini | Complete |
+| `OpenAIModel` | OpenAI GPT | Complete |
+| `AnthropicModel` | Anthropic Claude | Complete |
+| `DeepSeekModel` | DeepSeek | Complete |
+| `GroqModel` | Groq | Complete |
+| `OllamaModel` | Ollama (local) | Complete |
+| `MockLlm` | Testing | Complete |
 
 ## Key Patterns
 
@@ -70,7 +70,6 @@ model = OpenAIModel.compatible(
 
 ## Missing from adk-rust
 
-- **`GenerateContentConfig`** - temperature, top_p, top_k, max_output_tokens
 - **Azure OpenAI** - `AzureOpenAIClient` (needs separate class or config)
 
 ## Adding a New Model Provider

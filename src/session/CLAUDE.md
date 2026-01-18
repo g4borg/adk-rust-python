@@ -10,12 +10,13 @@ Python bindings for session and state management.
 
 | Python Class | Purpose | Status |
 |--------------|---------|--------|
-| `InMemorySessionService` | In-memory session storage | ✅ Complete |
-| `State` | Key-value state store | ✅ Complete |
-| `RunConfig` | Agent execution config | ✅ Complete |
-| `StreamingMode` | Streaming behavior enum | ✅ Complete |
-| `CreateSessionRequest` | Create session request | ✅ Complete |
-| `GetSessionRequest` | Get session request | ✅ Complete |
+| `InMemorySessionService` | In-memory session storage | Complete |
+| `State` | Key-value state store | Complete |
+| `RunConfig` | Agent execution config | Complete |
+| `StreamingMode` | Streaming behavior enum | Complete |
+| `CreateSessionRequest` | Create session request | Complete |
+| `GetSessionRequest` | Get session request | Complete |
+| `GenerateContentConfig` | Model generation parameters | Complete |
 
 ## State Management
 
@@ -27,7 +28,7 @@ pub struct PyState {
 }
 ```
 
-Uses `pythonize`/`depythonize` for Python ↔ JSON conversion.
+Uses `pythonize`/`depythonize` for Python <-> JSON conversion.
 
 ### State Prefixes (from adk-core)
 
@@ -52,6 +53,20 @@ pub enum PyStreamingMode {
 
 Used in `RunConfig` and converts to `adk_core::StreamingMode`.
 
+## GenerateContentConfig
+
+Model generation parameters:
+
+```python
+config = GenerateContentConfig(
+    temperature=0.7,
+    top_p=0.9,
+    top_k=40,
+    max_output_tokens=1024,
+    response_schema={"type": "object", ...}
+)
+```
+
 ## Missing from adk-rust
 
 ### Session Service Methods
@@ -74,21 +89,4 @@ session = await session_service.get(request)
 session.id
 session.state
 session.conversation_history
-```
-
-## Future: Artifact Service
-
-Binary data storage (images, files):
-```python
-artifact_service = InMemoryArtifactService()
-await artifact_service.save(request)
-data = await artifact_service.load(request)
-```
-
-## Future: Memory Service
-
-Semantic search/RAG:
-```python
-memory_service = InMemoryMemoryService()
-results = await memory_service.search(query)
 ```
