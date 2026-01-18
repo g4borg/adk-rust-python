@@ -173,9 +173,6 @@ class LoopAgent:
     @property
     def name(self) -> str: ...
 
-# Type alias for agent types
-Agent = LlmAgent | CustomAgent | SequentialAgent | ParallelAgent | LoopAgent
-
 class ConditionalAgent:
     """Rule-based conditional routing agent.
 
@@ -227,6 +224,17 @@ class LlmConditionalAgent:
     def name(self) -> str: ...
     @property
     def description(self) -> str: ...
+
+# Type alias for agent types
+Agent = (
+    LlmAgent
+    | CustomAgent
+    | SequentialAgent
+    | ParallelAgent
+    | LoopAgent
+    | ConditionalAgent
+    | LlmConditionalAgent
+)
 
 # Tools
 class FunctionTool:

@@ -251,12 +251,14 @@ class TestGenerateContentConfig:
         """Test config with temperature."""
         config = GenerateContentConfig(temperature=0.7)
         # Use approximate comparison for float32
+        assert config.temperature is not None
         assert abs(config.temperature - 0.7) < 0.001
 
     def test_config_top_p(self):
         """Test config with top_p."""
         config = GenerateContentConfig(top_p=0.9)
         # Use approximate comparison for float32
+        assert config.top_p is not None
         assert abs(config.top_p - 0.9) < 0.001
 
     def test_config_top_k(self):
@@ -291,6 +293,8 @@ class TestGenerateContentConfig:
             response_schema=schema,
         )
         # Use approximate comparison for float32
+        assert config.temperature is not None
+        assert config.top_p is not None
         assert abs(config.temperature - 0.5) < 0.001
         assert abs(config.top_p - 0.95) < 0.001
         assert config.top_k == 50
@@ -345,6 +349,8 @@ class TestSessionIntegration:
         )
 
         # Use approximate comparison for float32
+        assert creative_config.temperature is not None
+        assert precise_config.temperature is not None
         assert abs(creative_config.temperature - 0.9) < 0.001
         assert abs(precise_config.temperature - 0.1) < 0.001
 

@@ -182,9 +182,9 @@ impl PyRunner {
     ///     if text := event.get_text():
     ///         print(text, end="", flush=True)
     /// ```
-    fn run_stream<'py>(
+    fn run_stream(
         &self,
-        py: Python<'py>,
+        _py: Python<'_>,
         user_id: String,
         session_id: String,
         message: String,

@@ -4,7 +4,7 @@ ADK-Rust Python Bindings
 Build AI agents in Python powered by Rust.
 """
 
-from ._adk_rust import (
+from ._adk_rust import (  # ty: ignore[unresolved-import]
     # Error
     AdkError,
     AgentTool,
