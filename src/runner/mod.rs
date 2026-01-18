@@ -4,6 +4,7 @@
 //! - `Runner` - Execute agents with full configuration
 //! - `run_agent()` - Convenience function for simple execution
 
+use adk_session::SessionService;
 use futures::StreamExt;
 use pyo3::prelude::*;
 use std::sync::Arc;
@@ -163,6 +164,17 @@ pub fn run_agent<'py>(
     pyo3_async_runtimes::tokio::future_into_py(py, async move {
         let user_content = adk_core::Content::new("user").with_text(&message);
         let session_service = Arc::new(adk_session::InMemorySessionService::new());
+
+        // Create session first (required by runner)
+        session_service
+            .create(adk_session::CreateRequest {
+                app_name: app_name.clone(),
+                user_id: user_id.clone(),
+                session_id: Some(session_id.clone()),
+                state: Default::default(),
+            })
+            .await
+            .map_err(|e| pyo3::exceptions::PyRuntimeError::new_err(e.to_string()))?;
 
         let config = adk_runner::RunnerConfig {
             app_name,

@@ -181,8 +181,8 @@ impl PyInvocationContext {
             .find(|c| c.role == "user")
             .map(PyContent::from);
 
-        // Build state from session state
-        let state = PyState::from_session_state(ctx.session().state());
+        // Build state from session state (from adk_core::Session)
+        let state = PyState::from_core_state(ctx.session().state());
 
         Self {
             base: PyContext::from_readonly(ctx),

@@ -282,8 +282,84 @@ class GoogleSearchTool:
     def description(self) -> str: ...
 
 # Session
+class Session:
+    """Session wrapper providing access to session data."""
+
+    @property
+    def id(self) -> str:
+        """Get the session ID."""
+        ...
+    @property
+    def app_name(self) -> str:
+        """Get the application name."""
+        ...
+    @property
+    def user_id(self) -> str:
+        """Get the user ID."""
+        ...
+    @property
+    def state(self) -> State:
+        """Get the session state."""
+        ...
+    @property
+    def events(self) -> List[Event]:
+        """Get all events in the session."""
+        ...
+    @property
+    def last_update_time(self) -> str:
+        """Get the last update timestamp as ISO 8601 string."""
+        ...
+    def event_count(self) -> int:
+        """Get the number of events in the session."""
+        ...
+
 class InMemorySessionService:
+    """In-memory session service with full CRUD operations."""
+
     def __init__(self) -> None: ...
+    async def create(self, request: CreateSessionRequest) -> Session:
+        """Create a new session.
+
+        Args:
+            request: CreateSessionRequest with app_name, user_id, optional session_id
+
+        Returns:
+            Session: The created session
+        """
+        ...
+    async def get(self, request: GetSessionRequest) -> Session:
+        """Get an existing session.
+
+        Args:
+            request: GetSessionRequest with app_name, user_id, session_id
+
+        Returns:
+            Session: The retrieved session
+
+        Raises:
+            RuntimeError: If session not found
+        """
+        ...
+    async def list(self, request: ListSessionRequest) -> List[Session]:
+        """List all sessions for a user.
+
+        Args:
+            request: ListSessionRequest with app_name, user_id
+
+        Returns:
+            List[Session]: All sessions for the user
+        """
+        ...
+    async def delete(self, request: DeleteSessionRequest) -> None:
+        """Delete a session.
+
+        Args:
+            request: DeleteSessionRequest with app_name, user_id, session_id
+
+        Raises:
+            RuntimeError: If session not found
+        """
+        ...
 
 class State:
     def __init__(self) -> None: ...
@@ -292,6 +368,8 @@ class State:
     def all(self) -> Dict[str, Any]: ...
     def contains(self, key: str) -> bool: ...
     def remove(self, key: str) -> bool: ...
+    def keys(self) -> List[str]: ...
+    def __len__(self) -> int: ...
 
 class StreamingMode:
     None_: StreamingMode
@@ -305,10 +383,42 @@ class RunConfig:
 
 class CreateSessionRequest:
     def __init__(self, app_name: str, user_id: str, session_id: Optional[str] = None) -> None: ...
+    @property
+    def app_name(self) -> str: ...
+    @property
+    def user_id(self) -> str: ...
+    @property
+    def session_id(self) -> Optional[str]: ...
     def with_state(self, key: str, value: Any) -> CreateSessionRequest: ...
 
 class GetSessionRequest:
+    def __init__(
+        self, app_name: str, user_id: str, session_id: str, num_recent_events: Optional[int] = None
+    ) -> None: ...
+    @property
+    def app_name(self) -> str: ...
+    @property
+    def user_id(self) -> str: ...
+    @property
+    def session_id(self) -> str: ...
+    @property
+    def num_recent_events(self) -> Optional[int]: ...
+
+class ListSessionRequest:
+    def __init__(self, app_name: str, user_id: str) -> None: ...
+    @property
+    def app_name(self) -> str: ...
+    @property
+    def user_id(self) -> str: ...
+
+class DeleteSessionRequest:
     def __init__(self, app_name: str, user_id: str, session_id: str) -> None: ...
+    @property
+    def app_name(self) -> str: ...
+    @property
+    def user_id(self) -> str: ...
+    @property
+    def session_id(self) -> str: ...
 
 class GenerateContentConfig:
     temperature: Optional[float]

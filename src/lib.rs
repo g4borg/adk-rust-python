@@ -74,11 +74,14 @@ fn _adk_rust(m: &Bound<'_, PyModule>) -> PyResult<()> {
 
     // Session
     m.add_class::<PyInMemorySessionService>()?;
+    m.add_class::<PySession>()?;
     m.add_class::<PyState>()?;
     m.add_class::<PyRunConfig>()?;
     m.add_class::<PyStreamingMode>()?;
     m.add_class::<PyCreateSessionRequest>()?;
     m.add_class::<PyGetSessionRequest>()?;
+    m.add_class::<PyListSessionRequest>()?;
+    m.add_class::<PyDeleteSessionRequest>()?;
     m.add_class::<session::PyGenerateContentConfig>()?;
 
     // Runner

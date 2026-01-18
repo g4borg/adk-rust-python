@@ -23,6 +23,7 @@ from ._adk_rust import (
     CustomAgent,
     CustomAgentBuilder,
     DeepSeekModel,
+    DeleteSessionRequest,
     Event,
     ExitLoopTool,
     # Tools
@@ -48,6 +49,7 @@ from ._adk_rust import (
     LlmAgentBuilder,
     LlmConditionalAgent,
     LlmConditionalAgentBuilder,
+    ListSessionRequest,
     # Callbacks
     LlmRequest,
     LlmResponse,
@@ -65,6 +67,8 @@ from ._adk_rust import (
     # Runner
     Runner,
     SequentialAgent,
+    # Session wrapper
+    Session,
     Severity,
     State,
     StreamingMode,
@@ -108,11 +112,14 @@ __all__ = [
     "GoogleSearchTool",
     # Session
     "InMemorySessionService",
+    "Session",
     "State",
     "RunConfig",
     "StreamingMode",
     "CreateSessionRequest",
     "GetSessionRequest",
+    "ListSessionRequest",
+    "DeleteSessionRequest",
     "GenerateContentConfig",
     # Runner
     "Runner",
