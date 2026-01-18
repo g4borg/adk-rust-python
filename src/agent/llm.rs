@@ -9,6 +9,7 @@ use crate::callbacks::{
 };
 use crate::model::extract_llm;
 use crate::tool::PyFunctionTool;
+use crate::tool::function::PyMcpToolWrapper;
 
 /// An LLM-powered agent that uses language models for reasoning
 #[pyclass(name = "LlmAgent")]
@@ -97,10 +98,17 @@ impl PyLlmAgentBuilder {
         Ok(slf)
     }
 
+    /// Add a FunctionTool to the agent
     fn tool<'a>(
         mut slf: PyRefMut<'a, Self>,
         tool: PyRef<'a, PyFunctionTool>,
     ) -> PyRefMut<'a, Self> {
+        slf.tools.push(tool.inner.clone());
+        slf
+    }
+
+    /// Add an MCP tool (from McpToolset.get_tools()) to the agent
+    fn mcp_tool<'a>(mut slf: PyRefMut<'a, Self>, tool: &PyMcpToolWrapper) -> PyRefMut<'a, Self> {
         slf.tools.push(tool.inner.clone());
         slf
     }

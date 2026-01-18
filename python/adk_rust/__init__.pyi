@@ -89,6 +89,9 @@ class LlmAgentBuilder:
     def instruction(self, instruction: str) -> LlmAgentBuilder: ...
     def model(self, model: Any) -> LlmAgentBuilder: ...
     def tool(self, tool: FunctionTool) -> LlmAgentBuilder: ...
+    def mcp_tool(self, tool: McpTool) -> LlmAgentBuilder:
+        """Add an MCP tool (from McpToolset.get_tools()) to the agent."""
+        ...
     def sub_agent(self, agent: LlmAgent) -> LlmAgentBuilder: ...
     def output_key(self, key: str) -> LlmAgentBuilder: ...
     def before_agent_callback(
@@ -281,6 +284,86 @@ class GoogleSearchTool:
     @property
     def description(self) -> str: ...
 
+# MCP (Model Context Protocol)
+class McpTool:
+    """A tool from an MCP server.
+
+    These are returned by McpToolset.get_tools() and can be added to agents
+    using LlmAgentBuilder.mcp_tool().
+    """
+
+    @property
+    def name(self) -> str:
+        """Get the tool name."""
+        ...
+    @property
+    def description(self) -> str:
+        """Get the tool description."""
+        ...
+    @property
+    def parameters_schema(self) -> Optional[Dict[str, Any]]:
+        """Get the tool's JSON schema for parameters."""
+        ...
+
+class McpToolset:
+    """MCP Toolset - connects to MCP servers and exposes their tools.
+
+    Use factory methods to create instances:
+    - McpToolset.from_command(cmd, args) - Stdio transport (subprocess)
+
+    Example:
+        mcp = await McpToolset.from_command("npx", ["-y", "@mcp/server-filesystem", "/tmp"])
+        tools = await mcp.get_tools()
+        agent = LlmAgent.builder("agent").model(model).mcp_tool(tools[0]).build()
+        await mcp.close()
+    """
+
+    @property
+    def name(self) -> str:
+        """Get the toolset name."""
+        ...
+    @staticmethod
+    async def from_command(
+        command: str,
+        args: List[str],
+        name: Optional[str] = None,
+        tool_filter: Optional[List[str]] = None,
+    ) -> McpToolset:
+        """Connect to an MCP server via subprocess (stdio transport).
+
+        Args:
+            command: The command to run (e.g., "npx", "python", "node")
+            args: Arguments to pass to the command
+            name: Optional name for this toolset (default: "mcp_toolset")
+            tool_filter: Optional list of tool names to include (default: all tools)
+
+        Returns:
+            McpToolset instance connected to the MCP server
+
+        Example:
+            mcp = await McpToolset.from_command(
+                "npx",
+                ["-y", "@modelcontextprotocol/server-filesystem", "/tmp"]
+            )
+        """
+        ...
+    async def get_tools(self) -> List[McpTool]:
+        """Get the list of tools available from this MCP server.
+
+        Returns:
+            List of McpTool objects that can be added to an agent.
+        """
+        ...
+    async def close(self) -> None:
+        """Close the MCP connection and shut down the server.
+
+        This should be called when you're done using the toolset.
+        """
+        ...
+    async def is_connected(self) -> bool:
+        """Check if the toolset is still connected."""
+        ...
+
 # Session
 class Session:
     """Session wrapper providing access to session data."""
@@ -438,6 +521,22 @@ class GenerateContentConfig:
     def response_schema(self) -> Optional[Dict[str, Any]]: ...
 
 # Runner
+class EventStream:
+    """Async iterator for streaming events from agent execution.
+
+    Use with `async for`:
+    ```python
+    async for event in runner.run_stream(user_id, session_id, message):
+        if text := event.get_text():
+            print(text, end="", flush=True)
+    ```
+    """
+
+    def __aiter__(self) -> EventStream: ...
+    async def __anext__(self) -> Optional[Event]:
+        """Get the next event, or None when stream is exhausted."""
+        ...
+
 class Runner:
     def __init__(
         self,
@@ -446,8 +545,23 @@ class Runner:
         session_service: InMemorySessionService,
         run_config: Optional[RunConfig] = None,
     ) -> None: ...
-    async def run(self, user_id: str, session_id: str, message: str) -> List[Event]: ...
-    async def run_simple(self, user_id: str, session_id: str, message: str) -> str: ...
+    async def run(self, user_id: str, session_id: str, message: str) -> List[Event]:
+        """Run the agent and return all events when complete."""
+        ...
+    async def run_simple(self, user_id: str, session_id: str, message: str) -> str:
+        """Run the agent and return just the final response text."""
+        ...
+    def run_stream(self, user_id: str, session_id: str, message: str) -> EventStream:
+        """Run the agent with streaming - returns an async iterator of events.
+
+        Use with `async for`:
+        ```python
+        async for event in runner.run_stream(user_id, session_id, message):
+            if text := event.get_text():
+                print(text, end="", flush=True)
+        ```
+        """
+        ...
 
 async def run_agent(
     agent: LlmAgent,

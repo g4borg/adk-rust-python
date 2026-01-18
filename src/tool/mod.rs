@@ -7,11 +7,14 @@
 //! - `ExitLoopTool` - Exit loop agents
 //! - `LoadArtifactsTool` - Load artifacts into context
 //! - `GoogleSearchTool` - Google search (Gemini grounding)
+//! - `McpToolset` - MCP (Model Context Protocol) integration
 
 mod agent_tool;
 mod builtin;
-mod function;
+pub mod function;
+mod mcp;
 
 pub use agent_tool::PyAgentTool;
 pub use builtin::{PyExitLoopTool, PyGoogleSearchTool, PyLoadArtifactsTool};
-pub use function::{PyBasicToolset, PyFunctionTool};
+pub use function::{PyBasicToolset, PyFunctionTool, PyMcpToolWrapper};
+pub use mcp::PyMcpToolset;

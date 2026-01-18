@@ -119,6 +119,52 @@ impl PyFunctionTool {
     }
 }
 
+/// A wrapper for tools from MCP or other dynamic sources
+/// Unlike FunctionTool which wraps a Python function, this wraps an existing Rust Tool
+#[pyclass(name = "McpTool")]
+#[derive(Clone)]
+pub struct PyMcpToolWrapper {
+    pub(crate) inner: Arc<dyn Tool>,
+}
+
+impl PyMcpToolWrapper {
+    pub fn new(tool: Arc<dyn Tool>) -> Self {
+        Self { inner: tool }
+    }
+}
+
+#[pymethods]
+impl PyMcpToolWrapper {
+    #[getter]
+    fn name(&self) -> String {
+        self.inner.name().to_string()
+    }
+
+    #[getter]
+    fn description(&self) -> String {
+        self.inner.description().to_string()
+    }
+
+    #[getter]
+    fn parameters_schema(&self, py: Python<'_>) -> PyResult<Option<PyObject>> {
+        if let Some(schema) = self.inner.parameters_schema() {
+            let py_obj = pythonize::pythonize(py, &schema)
+                .map_err(|e| pyo3::exceptions::PyValueError::new_err(e.to_string()))?;
+            Ok(Some(py_obj.into()))
+        } else {
+            Ok(None)
+        }
+    }
+
+    fn __repr__(&self) -> String {
+        format!(
+            "McpTool(name='{}', description='{}')",
+            self.name(),
+            self.description()
+        )
+    }
+}
+
 /// A collection of tools
 #[pyclass(name = "BasicToolset")]
 pub struct PyBasicToolset {

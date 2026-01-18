@@ -25,6 +25,8 @@ from ._adk_rust import (
     DeepSeekModel,
     DeleteSessionRequest,
     Event,
+    # Streaming
+    EventStream,
     ExitLoopTool,
     # Tools
     FunctionTool,
@@ -44,17 +46,20 @@ from ._adk_rust import (
     # Session
     InMemorySessionService,
     InvocationContext,
+    ListSessionRequest,
     # Agents
     LlmAgent,
     LlmAgentBuilder,
     LlmConditionalAgent,
     LlmConditionalAgentBuilder,
-    ListSessionRequest,
     # Callbacks
     LlmRequest,
     LlmResponse,
     LoadArtifactsTool,
     LoopAgent,
+    # MCP
+    McpTool,
+    McpToolset,
     MemoryEntry,
     MockLlm,
     OllamaModel,
@@ -110,6 +115,9 @@ __all__ = [
     "ExitLoopTool",
     "LoadArtifactsTool",
     "GoogleSearchTool",
+    # MCP
+    "McpToolset",
+    "McpTool",
     # Session
     "InMemorySessionService",
     "Session",
@@ -123,6 +131,7 @@ __all__ = [
     "GenerateContentConfig",
     # Runner
     "Runner",
+    "EventStream",
     "run_agent",
     # Context
     "Context",

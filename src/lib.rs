@@ -71,6 +71,8 @@ fn _adk_rust(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_class::<PyLoadArtifactsTool>()?;
     m.add_class::<PyGoogleSearchTool>()?;
     m.add_class::<tool::PyAgentTool>()?;
+    m.add_class::<tool::PyMcpToolset>()?;
+    m.add_class::<tool::PyMcpToolWrapper>()?;
 
     // Session
     m.add_class::<PyInMemorySessionService>()?;
@@ -86,6 +88,7 @@ fn _adk_rust(m: &Bound<'_, PyModule>) -> PyResult<()> {
 
     // Runner
     m.add_class::<PyRunner>()?;
+    m.add_class::<runner::PyEventStream>()?;
     m.add_function(wrap_pyfunction!(run_agent, m)?)?;
 
     // Context
