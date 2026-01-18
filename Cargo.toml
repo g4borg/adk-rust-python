@@ -3,50 +3,51 @@ name = "adk-rust-python"
 version = "0.1.0"
 edition = "2024"
 rust-version = "1.85.0"
-license = "Apache-2.0"
 description = "Python bindings for ADK-Rust - Build AI agents in Python powered by Rust"
+license = "Apache-2.0"
 
 [lib]
-name = "adk_rust"
 crate-type = ["cdylib"]
+name = "adk_rust"
 
 [dependencies]
+adk-agent = { git = "https://github.com/zavora-ai/adk-rust", branch = "main" }
+adk-artifact = { git = "https://github.com/zavora-ai/adk-rust", branch = "main" }
+adk-core = { git = "https://github.com/zavora-ai/adk-rust", branch = "main" }
+adk-memory = { git = "https://github.com/zavora-ai/adk-rust", branch = "main" }
+adk-model = { git = "https://github.com/zavora-ai/adk-rust", branch = "main" }
+adk-runner = { git = "https://github.com/zavora-ai/adk-rust", branch = "main" }
+adk-rust = { git = "https://github.com/zavora-ai/adk-rust", branch = "main", features = [
+  "full"
+] }
+adk-session = { git = "https://github.com/zavora-ai/adk-rust", branch = "main" }
+adk-tool = { git = "https://github.com/zavora-ai/adk-rust", branch = "main" }
+async-trait = "0.1"
+chrono = "0.4"
+futures = "0.3"
 pyo3 = { version = "0.22", features = ["extension-module"] }
 pyo3-async-runtimes = { version = "0.22", features = ["tokio-runtime"] }
-tokio = { version = "1.40", features = ["full"] }
-futures = "0.3"
-
-adk-rust = { git = "https://github.com/zavora-ai/adk-rust", branch = "main", features = ["full"] }
-adk-core = { git = "https://github.com/zavora-ai/adk-rust", branch = "main" }
-adk-agent = { git = "https://github.com/zavora-ai/adk-rust", branch = "main" }
-adk-model = { git = "https://github.com/zavora-ai/adk-rust", branch = "main" }
-adk-tool = { git = "https://github.com/zavora-ai/adk-rust", branch = "main" }
-adk-runner = { git = "https://github.com/zavora-ai/adk-rust", branch = "main" }
-adk-session = { git = "https://github.com/zavora-ai/adk-rust", branch = "main" }
-adk-memory = { git = "https://github.com/zavora-ai/adk-rust", branch = "main" }
-adk-artifact = { git = "https://github.com/zavora-ai/adk-rust", branch = "main" }
-
+pythonize = "0.22"
 serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
-pythonize = "0.22"
-async-trait = "0.1"
 thiserror = "2.0"
+tokio = { version = "1.40", features = ["full"] }
 tracing = "0.1"
-chrono = "0.4"
+uuid = { version = "1.0", features = ["v4"] }
 
 [dev-dependencies]
 pyo3 = { version = "0.22", features = ["auto-initialize"] }
 
 [features]
 default = ["all-providers"]
-gemini = ["adk-model/gemini"]
-openai = ["adk-model/openai"]
+all-providers = ["anthropic", "deepseek", "gemini", "groq", "ollama", "openai"]
 anthropic = ["adk-model/anthropic"]
 deepseek = ["adk-model/deepseek"]
-ollama = ["adk-model/ollama"]
+gemini = ["adk-model/gemini"]
 groq = ["adk-model/groq"]
-all-providers = ["gemini", "openai", "anthropic", "deepseek", "ollama", "groq"]
+ollama = ["adk-model/ollama"]
+openai = ["adk-model/openai"]
 
 [profile.release]
-lto = true
 opt-level = 3
+lto = true

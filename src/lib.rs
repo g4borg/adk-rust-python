@@ -52,6 +52,7 @@ fn _adk_rust(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_class::<PyLlmAgent>()?;
     m.add_class::<PyLlmAgentBuilder>()?;
     m.add_class::<PyCustomAgent>()?;
+    m.add_class::<PyCustomAgentBuilder>()?;
     m.add_class::<PySequentialAgent>()?;
     m.add_class::<PyParallelAgent>()?;
     m.add_class::<PyLoopAgent>()?;
@@ -62,6 +63,7 @@ fn _adk_rust(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_class::<PyExitLoopTool>()?;
     m.add_class::<PyLoadArtifactsTool>()?;
     m.add_class::<PyGoogleSearchTool>()?;
+    m.add_class::<tool::PyAgentTool>()?;
 
     // Session
     m.add_class::<PyInMemorySessionService>()?;
@@ -70,10 +72,16 @@ fn _adk_rust(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_class::<PyStreamingMode>()?;
     m.add_class::<PyCreateSessionRequest>()?;
     m.add_class::<PyGetSessionRequest>()?;
+    m.add_class::<session::PyGenerateContentConfig>()?;
 
     // Runner
     m.add_class::<PyRunner>()?;
     m.add_function(wrap_pyfunction!(run_agent, m)?)?;
+
+    // Context
+    m.add_class::<context::PyContext>()?;
+    m.add_class::<context::PyToolContext>()?;
+    m.add_class::<context::PyInvocationContext>()?;
 
     // Error
     m.add_class::<error::PyAdkError>()?;

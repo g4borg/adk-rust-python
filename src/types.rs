@@ -194,6 +194,17 @@ impl PyContent {
     }
 }
 
+impl PyContent {
+    /// Extract text from all text parts (for internal Rust use)
+    pub fn extract_text(&self) -> String {
+        self.parts
+            .iter()
+            .filter_map(|p| p.get_text())
+            .collect::<Vec<_>>()
+            .join("")
+    }
+}
+
 impl From<adk_core::Content> for PyContent {
     fn from(content: adk_core::Content) -> Self {
         Self {

@@ -84,6 +84,13 @@ impl PyState {
     }
 }
 
+impl PyState {
+    /// Create from adk_core::State
+    pub fn from_session_state(state: &dyn adk_core::State) -> Self {
+        Self { data: state.all() }
+    }
+}
+
 /// Request to create a new session
 #[pyclass(name = "CreateSessionRequest")]
 #[derive(Clone)]
@@ -197,6 +204,83 @@ impl From<PyRunConfig> for adk_core::RunConfig {
         };
         adk_core::RunConfig {
             streaming_mode: mode,
+        }
+    }
+}
+
+/// Model generation configuration
+///
+/// Controls LLM generation parameters like temperature, top_p, etc.
+#[pyclass(name = "GenerateContentConfig")]
+#[derive(Clone, Default)]
+pub struct PyGenerateContentConfig {
+    #[pyo3(get, set)]
+    pub temperature: Option<f32>,
+    #[pyo3(get, set)]
+    pub top_p: Option<f32>,
+    #[pyo3(get, set)]
+    pub top_k: Option<i32>,
+    #[pyo3(get, set)]
+    pub max_output_tokens: Option<i32>,
+    response_schema: Option<serde_json::Value>,
+}
+
+#[pymethods]
+impl PyGenerateContentConfig {
+    #[new]
+    #[pyo3(signature = (temperature=None, top_p=None, top_k=None, max_output_tokens=None, response_schema=None))]
+    fn new(
+        temperature: Option<f32>,
+        top_p: Option<f32>,
+        top_k: Option<i32>,
+        max_output_tokens: Option<i32>,
+        response_schema: Option<&pyo3::Bound<'_, pyo3::types::PyDict>>,
+    ) -> PyResult<Self> {
+        let schema = if let Some(dict) = response_schema {
+            Some(
+                pythonize::depythonize::<serde_json::Value>(dict.as_any())
+                    .map_err(|e| pyo3::exceptions::PyValueError::new_err(e.to_string()))?,
+            )
+        } else {
+            None
+        };
+
+        Ok(Self {
+            temperature,
+            top_p,
+            top_k,
+            max_output_tokens,
+            response_schema: schema,
+        })
+    }
+
+    /// Get response schema as a Python dict
+    #[getter]
+    fn response_schema(&self, py: pyo3::Python<'_>) -> pyo3::PyObject {
+        match &self.response_schema {
+            Some(schema) => pythonize::pythonize(py, schema)
+                .map(|b| b.into())
+                .unwrap_or_else(|_| py.None()),
+            None => py.None(),
+        }
+    }
+
+    fn __repr__(&self) -> String {
+        format!(
+            "GenerateContentConfig(temperature={:?}, top_p={:?}, top_k={:?}, max_output_tokens={:?})",
+            self.temperature, self.top_p, self.top_k, self.max_output_tokens
+        )
+    }
+}
+
+impl From<PyGenerateContentConfig> for adk_core::GenerateContentConfig {
+    fn from(config: PyGenerateContentConfig) -> Self {
+        Self {
+            temperature: config.temperature,
+            top_p: config.top_p,
+            top_k: config.top_k,
+            max_output_tokens: config.max_output_tokens,
+            response_schema: config.response_schema,
         }
     }
 }

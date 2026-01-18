@@ -5,49 +5,50 @@ Build AI agents in Python powered by Rust.
 """
 
 from ._adk_rust import (
+    # Error
+    AdkError,
+    AgentTool,
+    AnthropicModel,
+    BasicToolset,
     # Types
     Content,
-    Part,
-    Event,
-    
-    # Models - All providers
-    GeminiModel,
-    OpenAIModel,
-    AnthropicModel,
+    # Context
+    Context,
+    CreateSessionRequest,
+    CustomAgent,
+    CustomAgentBuilder,
     DeepSeekModel,
+    Event,
+    ExitLoopTool,
+    # Tools
+    FunctionTool,
+    # Models
+    GeminiModel,
+    GenerateContentConfig,
+    GetSessionRequest,
+    GoogleSearchTool,
     GroqModel,
-    OllamaModel,
-    MockLlm,
-    
+    # Session
+    InMemorySessionService,
+    InvocationContext,
     # Agents
     LlmAgent,
     LlmAgentBuilder,
-    CustomAgent,
-    SequentialAgent,
-    ParallelAgent,
-    LoopAgent,
-    
-    # Tools
-    FunctionTool,
-    BasicToolset,
-    ExitLoopTool,
     LoadArtifactsTool,
-    GoogleSearchTool,
-    
-    # Session
-    InMemorySessionService,
-    State,
+    LoopAgent,
+    MockLlm,
+    OllamaModel,
+    OpenAIModel,
+    ParallelAgent,
+    Part,
     RunConfig,
-    StreamingMode,
-    CreateSessionRequest,
-    GetSessionRequest,
-    
     # Runner
     Runner,
+    SequentialAgent,
+    State,
+    StreamingMode,
+    ToolContext,
     run_agent,
-    
-    # Error
-    AdkError,
 )
 
 __version__ = "0.1.0"
@@ -55,9 +56,8 @@ __version__ = "0.1.0"
 __all__ = [
     # Types
     "Content",
-    "Part", 
+    "Part",
     "Event",
-    
     # Models
     "GeminiModel",
     "OpenAIModel",
@@ -66,22 +66,21 @@ __all__ = [
     "GroqModel",
     "OllamaModel",
     "MockLlm",
-    
     # Agents
     "LlmAgent",
     "LlmAgentBuilder",
     "CustomAgent",
+    "CustomAgentBuilder",
     "SequentialAgent",
     "ParallelAgent",
     "LoopAgent",
-    
     # Tools
     "FunctionTool",
     "BasicToolset",
+    "AgentTool",
     "ExitLoopTool",
     "LoadArtifactsTool",
     "GoogleSearchTool",
-    
     # Session
     "InMemorySessionService",
     "State",
@@ -89,11 +88,14 @@ __all__ = [
     "StreamingMode",
     "CreateSessionRequest",
     "GetSessionRequest",
-    
+    "GenerateContentConfig",
     # Runner
     "Runner",
     "run_agent",
-    
+    # Context
+    "Context",
+    "ToolContext",
+    "InvocationContext",
     # Error
     "AdkError",
 ]
