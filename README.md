@@ -26,7 +26,7 @@ This project provides Python bindings for the ADK-Rust framework. Current implem
 | Guardrails (ContentFilter, PiiRedactor) | Implemented |
 | Memory Service | Implemented |
 | Artifact Service | Implemented |
-| MCP Integration | Not yet implemented |
+| MCP Integration (McpToolset) | Implemented |
 | Event Streaming | Not yet implemented |
 
 See `docs/plans/python-bindings-plan.md` for the full implementation roadmap.

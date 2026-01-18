@@ -20,6 +20,7 @@ adk-rust-python/
 │   │   ├── mod.rs              # Module exports
 │   │   ├── function.rs         # FunctionTool, BasicToolset
 │   │   ├── agent_tool.rs       # AgentTool (agents as tools)
+│   │   ├── mcp.rs              # McpToolset (MCP server integration)
 │   │   └── builtin.rs          # ExitLoopTool, LoadArtifactsTool, GoogleSearchTool
 │   ├── session/                # Session management
 │   │   └── mod.rs              # Session, State, RunConfig, GenerateContentConfig
@@ -84,7 +85,7 @@ uv pip install -e ".[dev]"
 
 **Agents:** `LlmAgent`, `LlmAgentBuilder`, `CustomAgent`, `CustomAgentBuilder`, `SequentialAgent`, `ParallelAgent`, `LoopAgent`, `ConditionalAgent`, `LlmConditionalAgent`, `LlmConditionalAgentBuilder`
 
-**Tools:** `FunctionTool`, `BasicToolset`, `AgentTool`, `ExitLoopTool`, `GoogleSearchTool`, `LoadArtifactsTool`
+**Tools:** `FunctionTool`, `BasicToolset`, `AgentTool`, `ExitLoopTool`, `GoogleSearchTool`, `LoadArtifactsTool`, `McpToolset`
 
 **Session:** `InMemorySessionService`, `State`, `RunConfig`, `StreamingMode`, `CreateSessionRequest`, `GetSessionRequest`, `GenerateContentConfig`
 
@@ -166,6 +167,7 @@ Tests use `pytest-asyncio` with `asyncio_mode = "auto"`.
 5. Add to `python/adk_rust/__init__.py` exports
 6. Add type stub in `python/adk_rust/__init__.pyi`
 7. Add tests in `tests/`
+8. **Update this CLAUDE.md** to reflect the new class in the appropriate section
 
 ### Debugging build issues
 
@@ -183,13 +185,21 @@ cargo check
 See `docs/plans/python-bindings-plan.md` for the full implementation plan.
 
 **Remaining (Phase 4):**
-- McpToolset (MCP integration)
 - Event Streaming (async iteration)
 
 **Future (Phase 5+):**
 - Browser integration
 - Graph workflows
 - Schema serialization
+
+## Documentation Guidelines
+
+**Keep documentation in sync with implementation.** When completing work from `docs/plans/` or making significant changes:
+1. Update the relevant `CLAUDE.md` file(s) in the affected folder/topic
+2. Update `README.md` if user-facing APIs or usage patterns changed
+3. Update this root `CLAUDE.md` if the change affects project structure or exposed classes
+
+Each folder may have its own `CLAUDE.md` with topic-specific guidance - keep those current as you work in that area.
 
 ## Local Development Notes
 
