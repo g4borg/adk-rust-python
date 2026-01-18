@@ -1,6 +1,5 @@
 """Basic tests for adk_rust Python bindings."""
 
-import pytest
 
 
 class TestImports:

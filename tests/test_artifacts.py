@@ -100,7 +100,7 @@ class TestArtifactLoad:
         service = InMemoryArtifactService()
 
         v1 = await service.save("my_app", "user1", "session1", "file.txt", "Version 1")
-        v2 = await service.save("my_app", "user1", "session1", "file.txt", "Version 2")
+        _v2 = await service.save("my_app", "user1", "session1", "file.txt", "Version 2")
 
         part = await service.load("my_app", "user1", "session1", "file.txt", version=v1)
         assert isinstance(part, Part)
@@ -140,7 +140,7 @@ class TestArtifactDelete:
         service = InMemoryArtifactService()
 
         v1 = await service.save("my_app", "user1", "session1", "file.txt", "V1")
-        v2 = await service.save("my_app", "user1", "session1", "file.txt", "V2")
+        _v2 = await service.save("my_app", "user1", "session1", "file.txt", "V2")
 
         await service.delete("my_app", "user1", "session1", "file.txt", version=v1)
 

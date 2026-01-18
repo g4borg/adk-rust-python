@@ -1,6 +1,5 @@
 """Tests for core types: Content, Part, Event."""
 
-import pytest
 from adk_rust import Content, Event, Part
 
 

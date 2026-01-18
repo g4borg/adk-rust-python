@@ -1,15 +1,12 @@
 """Tests for agent types: LlmAgent, CustomAgent, workflow agents."""
 
-import pytest
 from adk_rust import (
     CustomAgent,
     CustomAgentBuilder,
-    FunctionTool,
     InvocationContext,
     LlmAgent,
     LlmAgentBuilder,
     LoopAgent,
-    MockLlm,
     ParallelAgent,
     SequentialAgent,
 )

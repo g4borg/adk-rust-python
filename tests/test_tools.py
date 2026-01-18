@@ -1,6 +1,5 @@
 """Tests for tools: FunctionTool, BasicToolset, AgentTool, built-in tools."""
 
-import pytest
 from adk_rust import (
     AgentTool,
     BasicToolset,

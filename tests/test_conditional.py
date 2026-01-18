@@ -1,14 +1,11 @@
 """Tests for conditional agents: ConditionalAgent, LlmConditionalAgent."""
 
-import pytest
 from adk_rust import (
     ConditionalAgent,
     CustomAgent,
     InvocationContext,
     LlmAgent,
     LlmConditionalAgent,
-    LlmConditionalAgentBuilder,
-    MockLlm,
 )
 
 

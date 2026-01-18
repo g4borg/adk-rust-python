@@ -1,6 +1,5 @@
 """Tests for model constructors and properties."""
 
-import pytest
 from adk_rust import (
     AnthropicModel,
     DeepSeekModel,

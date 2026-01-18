@@ -394,7 +394,7 @@ class TestSessionCRUD:
         """Test getting an existing session."""
         # First create a session
         create_req = CreateSessionRequest("test_app", "user1", "session_to_get")
-        created = await session_service.create(create_req)
+        _created = await session_service.create(create_req)
 
         # Then get it
         get_req = GetSessionRequest("test_app", "user1", "session_to_get")

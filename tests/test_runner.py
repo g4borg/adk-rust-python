@@ -4,7 +4,6 @@ import pytest
 from adk_rust import (
     Event,
     FunctionTool,
-    InMemorySessionService,
     LlmAgent,
     MockLlm,
     RunConfig,
